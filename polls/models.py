@@ -11,6 +11,9 @@ class Poll(models.Model):
 		return self.question
 
 class Choise(models.Model):
+	# The related_name attribute specifies the name of the reverse relation from the Poll model back to your model.
+	# For example to refer choise of any poll instance you can use 'Poll.choise.all()'
+	# you could use Poll.choise.all() to get all instances of your Choise model that have a relation to current_poll
 	poll = models.ForeignKey(Poll, related_name='choise', on_delete=models.CASCADE)
 	choise_text = models.CharField(max_length=100)
 

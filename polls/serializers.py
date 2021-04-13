@@ -10,6 +10,8 @@ class VoteSerializer(serializers.ModelSerializer):
 
 class ChoiseSerializer(serializers.ModelSerializer):
 	# by setting many=True you tell drf that queryset contains mutiple items (a list of items) so drf needs to serialize each item with serializer class (and serializer.data will be a list)
+	# One can add extra fields to a ModelSerializer or override the default fields by declaring fields on the class
+	# refer to related_name='votes'
 	votes = VoteSerializer(many=True, required=False)
 
 	class Meta:
@@ -24,7 +26,8 @@ class ChoiseSerializer(serializers.ModelSerializer):
 >>> <Poll: who are you?>
 '''
 class PollSerializer(serializers.ModelSerializer):
-	votes = ChoiseSerializer(many=True, read_only=True, required=False)
+	# refer to related_name='choise'
+	choise = ChoiseSerializer(many=True, read_only=True, required=False)
 
 	class Meta:
 		model = Poll

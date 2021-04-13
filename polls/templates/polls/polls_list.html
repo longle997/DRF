@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<h2>Polls list</h2>
+	</head>
+	<body>
+		{% for obj in data %}
+		    {{ obj.question }} - {{ obj.created_by }} - {{ obj.pub_date }} </br>
+		{% endfor %}
+	</body>
+</html>
