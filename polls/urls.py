@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import polls_list, polls_detail
-from .apiviews import PollList, PollDetail, ChoiseList, CreateVote
+from .apiviews import PollList, PollDetail, ChoiseList, CreateVote, UserCreate, LoginView
+from rest_framework.authtoken import views
 
 urlpatterns = [
 	# user access to specific url =>  link to corresponding view
@@ -14,4 +15,6 @@ urlpatterns = [
     # path("vote/", CreateVote.as_view(), name="create_vote"),
     path('polls/<int:pk>/choises/', ChoiseList.as_view(), name='choice_list'),
     path("polls/<int:pk>/choises/<int:choise_pk>/vote/", CreateVote.as_view(), name="create_vote"),
+    path('users/', UserCreate.as_view(), name='user_create'),
+    path('login/', LoginView.as_view(), name='login'),
 ]
