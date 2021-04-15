@@ -11,6 +11,21 @@ def polls_list(request):
 	if request.method == 'GET':
 		MAX_OBJECTS = 20
 		polls = Poll.objects.all()[:MAX_OBJECTS]
+		'''
+		[
+			{
+				'question': 'What do you wanna eat?', 
+				'created_by__username': 'longle', 
+				'pub_date': datetime.datetime(2021, 4, 12, 9, 5, 33, 739826, tzinfo=<UTC>)
+			},
+			{
+				'question': 'who are you?', 
+				'created_by__username': 'longle', 
+				'pub_date': datetime.datetime(2021, 4, 12, 10, 55, 12, 895249, tzinfo=<UTC>)
+			},
+			...
+		]
+		'''
 		data = {'result': list(polls.values('question', 'created_by__username', 'pub_date'))}
 		return JsonResponse(data)
 

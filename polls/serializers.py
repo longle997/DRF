@@ -55,7 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
 		user.set_password(validated_data['password'])
 		user.save()
 		# create token when new user is created
-		# to check token of user, go to shell => import User model => get any user instance => user_instance.get().auth_token
+		# to check token of user, go to shell => import User model => get any user instance => user_instance.auth_token
 		# token is asigned for a specific user, in the next request, we can append that token in header of request as alternative of username and password
 		Token.objects.create(user=user)
 		return user

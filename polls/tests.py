@@ -1,5 +1,5 @@
 from django.test import TestCase
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APITestCase, APIRequestFactory, APIClient
 from polls import apiviews
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
@@ -15,6 +15,7 @@ class TestPoll(APITestCase):
 		self.uri = '/polls/'
 		self.user = self.setup_user()
 		self.token = Token.objects.create(user=self.user)
+		self.client = APIClient()
 		# self.token.save()
 
 	@staticmethod
@@ -34,4 +35,24 @@ class TestPoll(APITestCase):
 		response = self.view(request)
 		self.assertEqual(response.status_code, 200,
 						 'Expected Response Code 200, received {0} instead.'
+						 .format(response.status_code))
+
+	def test_list2(self):
+		# simply login with 'login' method
+		self.client.login(username="test", password="test")
+		# APIClient support us to easier create a get request
+		response = self.client.get(self.uri)
+		self.assertEqual(response.status_code, 200,
+						 'Expected Response Code 200, received {0} instead.'
+						 .format(response.status_code))
+
+	def test_create(self):
+		self.client.login(username="test", password="test")
+		params = {
+			"question": "How are you?",
+			"created_by": 1
+		}
+		response = self.client.post(self.uri, params)
+		self.assertEqual(response.status_code, 201,
+						 'Expected Response Code 201, received {0} instead.'
 						 .format(response.status_code))

@@ -24,8 +24,9 @@ class PollDetail(APIView):
 		poll = get_object_or_404(Poll, pk=pk)
 		data = PollSerializer(poll).data
 		return Response(data)
-		'''
+'''
 
+# instead of define a html file by yourself, generics.ListCreateAPIView support to create a view with basic information
 # Used for read-write endpoints to represent a collection of model instances.
 # Provides get and post method handlers.
 class PollList(generics.ListCreateAPIView):
@@ -40,11 +41,13 @@ class PollDetail(generics.RetrieveDestroyAPIView):
 	queryset = Poll.objects.all()
 	serializer_class = PollSerializer
 
+	# override destroy method, only author of poll can delete it
 	def destroy(self, request, *args, **kwargs):
 		poll = Poll.objects.get(pk=self.kwargs['pk'])
 		# request.user is current user is create the request, data form request
 		# poll.created_by is author of current poll, data from DB
 		if not request.user == poll.created_by:
+			# raising PermissionDenied causes the error to be rendered using the 403.html template
 			raise PermissionDenied("You can not delete this poll")
 		return super().destroy(request, *args, **kwargs)
 
@@ -58,10 +61,14 @@ class ChoiseList(generics.ListCreateAPIView):
 		queryset = Choise.objects.filter( poll_id=self.kwargs['pk'] )
 		return queryset
 
+	# override post method, only author of poll can create choise
+	# the first parameter of methods is the instance the method is called on
 	def post(self, request, *args, **kwargs):
 		poll = Poll.objects.get(pk=self.kwargs['pk'])
 		if not request.user == poll.created_by:
 			raise PermissionDenied('You can not create choice for this poll')
+		# super method will calling post method of ChoiseList and all it's superclasses
+		# for example it will call ChoiseList.post(), generics.ListCreateAPIView.post(), parent_class_of_generics.ListCreateAPIView.post()
 		return super().post(request, *args, **kwargs)
 
 	serializer_class = ChoiseSerializer

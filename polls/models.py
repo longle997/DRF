@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 
 class Poll(models.Model):
 	question = models.CharField(max_length=100)
+	# in Poll model we have created_by field, which is refer to a specific user pk
+	# CASCADE mean if the referenced value is deleted in the parent table, all related rows in the child table are also deleted. 
 	created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 	pub_date = models.DateTimeField(auto_now=True)
 
@@ -27,4 +29,7 @@ class Vote(models.Model):
 
 	# if you want to override the default behavior of fields, you can define the corresponding meta options
 	class Meta:
+		# this unique_together make sure that 1 user can only make 1 vote in 1 poll
+		# we are set that 2 vote cannot be voted_by the same user in 1 poll
+		# in Vote table, there is no 2 intances have the same value for both 'poll' and 'voted_by' fields
 		unique_together = ('poll', 'voted_by')
