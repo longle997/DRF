@@ -1,9 +1,10 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 
 from .models import Poll, Choise, Vote
-from .serializers import PollSerializer, ChoiseSerializer, VoteSerializer, UserSerializer
+from .serializers import PollSerializer, ChoiseSerializer, VoteSerializer, UserSerializer, CreatePollSerializer
 from rest_framework import generics, status
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
@@ -26,15 +27,23 @@ class PollDetail(APIView):
 		return Response(data)
 '''
 
+'''
+try to create a url handle 2 method (POST and GET), each method serializer with different fields
+GET is Poll model will all field
+POST is Poll model with only 'question' field, and when create a Poll, application will collect user data from request and use it for Poll.create_by field
+'''
 # instead of define a html file by yourself, generics.ListCreateAPIView support to create a view with basic information
 # Used for read-write endpoints to represent a collection of model instances.
 # Provides get and post method handlers.
+# in order to use this view, header must contain "Authorization: Token {your token get from login view}"
 class PollList(generics.ListCreateAPIView):
 	permission_classes = (IsAuthenticated,)
 	# The queryset that should be used for returning objects from this view
 	queryset = Poll.objects.all()
 	# The serializer class that should be used for validating and deserializing input, and for serializing output
 	serializer_class = PollSerializer
+
+
 
 class PollDetail(generics.RetrieveDestroyAPIView):
 	permission_classes = (IsAuthenticated,)
@@ -71,20 +80,28 @@ class ChoiseList(generics.ListCreateAPIView):
 		# for example it will call ChoiseList.post(), generics.ListCreateAPIView.post(), parent_class_of_generics.ListCreateAPIView.post()
 		return super().post(request, *args, **kwargs)
 
+	# overide this method in order to add more field of serializer's context
+	def get_serializer_context(self):
+		poll = Poll.objects.get(pk=self.kwargs['pk'])
+		return {"poll": poll}
+
 	serializer_class = ChoiseSerializer
 
 # generic class base view is good for general usage, but if you wanna make a complex view, you should use APIView
+# with APIView, you can control how your method work, so you must define them in this class
 class CreateVote(APIView):
 	permission_classes = (IsAuthenticated,)
 	serializer_class = VoteSerializer
 
 	def post(self, request, pk, choise_pk):
 		# take voted_by value from POST request
-		voted_by = request.data.get('voted_by')
+		voted_by = request.user.pk
 		# from urlpattern we collect pk and choise_pk and pass them to here
 		data = {'choise': choise_pk, 'poll': pk, 'voted_by': voted_by}
 		serializer = VoteSerializer(data=data)
 		if serializer.is_valid():
+			# Calling .save() will either create a new instance, or update an existing instance, depending on if an existing instance was passed when instantiating the serializer class
+			# .save() will create a new instance.
 			vote = serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		else:

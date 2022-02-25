@@ -19,6 +19,16 @@ class ChoiseSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Choise
 		fields = '__all__'
+		# i don't want when user create poll, they can choose created_by field
+		read_only_fields = ['poll']
+
+
+	def create(self, validated_data):
+		# self.context.get("poll") was sent from ChoiseList view
+		poll = self.context.get("poll")
+		# add field created_by to validated data
+		validated_data.update({"poll": poll})
+		return Choise.objects.create(**validated_data)
 
 '''
 >>> from polls.serializers import PollSerializer
@@ -28,12 +38,40 @@ class ChoiseSerializer(serializers.ModelSerializer):
 >>> <Poll: who are you?>
 '''
 class PollSerializer(serializers.ModelSerializer):
-	# refer to related_name='choise'
+	# refer to related_name='choise', if we wanna have choise field in our poll object, need to add this LOC
 	choise = ChoiseSerializer(many=True, read_only=True, required=False)
 
 	class Meta:
 		model = Poll
 		fields = '__all__'
+		# i don't want when user create poll, they can choose created_by field
+		read_only_fields = ['created_by']
+
+
+	def create(self, validated_data):
+		# get user data from request
+		user = None
+
+		request = self.context.get("request")
+		if request and hasattr(request, "user"):
+			user = request.user
+
+		# add field created_by to validated data
+		validated_data.update({"created_by": user})
+		return Poll.objects.create(**validated_data)
+
+
+class CreatePollSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Poll
+		fields = ['question']
+
+	def create(self, validated_data):
+		user_ids = validated_data.pop('user_id')
+		instance = super().create(validated_data)
+		instance.users.add(user)
+		return instance
 
 
 class UserSerializer(serializers.ModelSerializer):
