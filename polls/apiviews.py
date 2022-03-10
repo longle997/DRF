@@ -128,5 +128,5 @@ class LoginView(APIView):
 		else:
 			return Response({'error': 'Wrong Credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
-def dummy_function(request):
-	pass
+# def dummy_function(request):
+# 	pass
