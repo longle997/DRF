@@ -127,6 +127,3 @@ class LoginView(APIView):
 			return Response({'token': user.auth_token.key})
 		else:
 			return Response({'error': 'Wrong Credentials'}, status=status.HTTP_400_BAD_REQUEST)
-
-def dummy_function(request):
-	pass
