@@ -37,7 +37,7 @@ POST is Poll model with only 'question' field, and when create a Poll, applicati
 # Provides get and post method handlers.
 # in order to use this view, header must contain "Authorization: Token {your token get from login view}"
 class PollList(generics.ListCreateAPIView):
-	permission_classes = ()
+	permission_classes = (IsAuthenticated,)
 	# The queryset that should be used for returning objects from this view
 	queryset = Poll.objects.all()
 	# The serializer class that should be used for validating and deserializing input, and for serializing output
@@ -46,7 +46,7 @@ class PollList(generics.ListCreateAPIView):
 
 
 class PollDetail(generics.RetrieveDestroyAPIView):
-	permission_classes = ()
+	permission_classes = (IsAuthenticated,)
 	queryset = Poll.objects.all()
 	serializer_class = PollSerializer
 
@@ -61,7 +61,7 @@ class PollDetail(generics.RetrieveDestroyAPIView):
 		return super().destroy(request, *args, **kwargs)
 
 class ChoiseList(generics.ListCreateAPIView):
-	permission_classes = ()
+	permission_classes = (IsAuthenticated,)
 	def get_queryset(self):
 		# Because in Choise model, it have pool field with ForeignKey to Pool model
 		# So one field is automatically add to Choise model intance, which is 'poll_id'
@@ -90,7 +90,7 @@ class ChoiseList(generics.ListCreateAPIView):
 # generic class base view is good for general usage, but if you wanna make a complex view, you should use APIView
 # with APIView, you can control how your method work, so you must define them in this class
 class CreateVote(APIView):
-	permission_classes = ()
+	permission_classes = (IsAuthenticated,)
 	serializer_class = VoteSerializer
 
 	def post(self, request, pk, choise_pk):
